@@ -26,6 +26,7 @@ import {
   FaExchangeAlt,
 } from "react-icons/fa";
 import { cn } from "@/lib/utils";
+import { ArrowRight, ArrowRightLeft, Repeat } from "lucide-react";
 
 interface FlightSearchFormProps {
   onSearch: (params: FlightSearchParams) => void;
@@ -37,9 +38,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
   const [destination, setDestination] = useState<Airport | null>(null);
   const [departureDate, setDepartureDate] = useState<Date>();
   const [returnDate, setReturnDate] = useState<Date>();
-  const [tripType, setTripType] = useState<"one-way" | "round-trip">(
-    "round-trip",
-  );
+  const [tripType, setTripType] = useState<"one-way" | "round-trip">("one-way");
   const [adults, setAdults] = useState("1");
   const [travelClass, setTravelClass] = useState<string>("ECONOMY");
 
@@ -82,23 +81,23 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
         {/* Trip Type Selection */}
         <div className="flex gap-4">
           <Button
-            variant={tripType === "round-trip" ? "default" : "outline"}
-            onClick={() => setTripType("round-trip")}
-            className="flex-1"
-          >
-            Round Trip
-          </Button>
-          <Button
             variant={tripType === "one-way" ? "default" : "outline"}
             onClick={() => setTripType("one-way")}
             className="flex-1"
           >
             One Way
           </Button>
+          <Button
+            variant={tripType === "round-trip" ? "default" : "outline"}
+            onClick={() => setTripType("round-trip")}
+            className="flex-1"
+          >
+            Round Trip
+          </Button>
         </div>
 
         {/* Origin and Destination */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center">
           <div className="space-y-2">
             <label className="text-sm font-medium">From</label>
             <LocationSearch
@@ -111,14 +110,14 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
             />
           </div>
 
-          <div className="hidden md:flex items-end pb-2">
+          <div className="hidden md:flex items-center justify-center mt-auto">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleSwap}
               className="rounded-full"
             >
-              <FaExchangeAlt className="h-4 w-4" />
+              {tripType === "one-way" ? <ArrowRight /> : <ArrowRightLeft />}
             </Button>
           </div>
 
@@ -189,7 +188,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
                       date < new Date() ||
                       !!(departureDate && date < departureDate)
                     }
-                    initialFocus
+                    autoFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -202,7 +201,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">Passengers</label>
             <Select value={adults} onValueChange={setAdults}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -218,7 +217,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">Class</label>
             <Select value={travelClass} onValueChange={setTravelClass}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

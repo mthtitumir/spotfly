@@ -6,14 +6,10 @@ import { FlightCard } from "@/components/flight/flight-card";
 import { FlightFilters } from "@/components/flight/flight-filters";
 import { PriceGraph } from "@/components/flight/price-graph";
 import { FlightService } from "@/lib/flight-service";
-import {
-  FlightSearchParams,
-  FlightOffer,
-  FlightFilters as Filters,
-} from "@/types/flight";
+import { FlightSearchParams, FlightFilters as Filters } from "@/types/flight";
 import { useQuery } from "@tanstack/react-query";
-import { FaPlane } from "react-icons/fa";
 import { toast } from "sonner";
+import { Plane } from "lucide-react";
 
 export default function Home() {
   const [searchParams, setSearchParams] = useState<FlightSearchParams | null>(
@@ -67,6 +63,17 @@ export default function Home() {
   if (error) {
     toast.error("Failed to search flights. Please try again.");
   }
+  console.log(
+    {
+      allFlights,
+      airlines,
+      priceRange,
+      priceGraphData,
+      filters,
+      filteredFlights,
+    },
+    "all-stats",
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -75,7 +82,7 @@ export default function Home() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <div className="bg-primary text-primary-foreground p-3 rounded-xl">
-              <FaPlane className="h-6 w-6" />
+              <Plane className="h-6 w-6" />
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -177,7 +184,7 @@ export default function Home() {
           <div className="text-center py-20">
             <div className="max-w-md mx-auto space-y-4">
               <div className="bg-primary/10 text-primary p-6 rounded-full w-24 h-24 mx-auto flex items-center justify-center">
-                <FaPlane className="h-12 w-12" />
+                <Plane className="h-12 w-12" />
               </div>
               <h2 className="text-2xl font-bold">Ready to explore?</h2>
               <p className="text-muted-foreground">

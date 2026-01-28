@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { AIRLINE_NAMES } from "@/types/flight";
-import { FaFilter, FaTimes } from "react-icons/fa";
+import { Filter, X } from "lucide-react";
 
 interface FlightFiltersProps {
   airlines: string[];
@@ -76,21 +76,21 @@ export function FlightFilters({
     localFilters.maxPrice !== priceRange[1];
 
   return (
-    <Card className="p-6 sticky top-4">
+    <Card className="p-6 rounded-md sticky top-4">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FaFilter className="h-4 w-4" />
+            <Filter className="h-4 w-4" />
             <h3 className="font-semibold">Filters</h3>
           </div>
           {hasActiveFilters && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={onReset}
-              className="h-8 px-2"
+              className="rounded"
             >
-              <FaTimes className="h-3 w-3 mr-1" />
+              <X className="h-3 w-3" />
               Clear
             </Button>
           )}
@@ -123,8 +123,9 @@ export function FlightFilters({
           <Label>Stops</Label>
           <div className="space-y-2">
             {[0, 1, 2].map((stops) => (
-              <div key={stops} className="flex items-center space-x-2">
+              <div key={stops} className="flex items-center px-2 space-x-2">
                 <Checkbox
+                  className="rounded"
                   id={`stops-${stops}`}
                   checked={localFilters.stops?.includes(stops) || false}
                   onCheckedChange={(checked) =>
@@ -145,13 +146,17 @@ export function FlightFilters({
         </div>
 
         {/* Airlines */}
-        {airlines.length > 0 && (
+        {airlines?.length > 0 && (
           <div className="space-y-4">
             <Label>Airlines</Label>
-            <div className="space-y-2 max-h-60 overflow-y-auto">
+            <div className="space-y-2 max-h-72 overflow-y-auto">
               {airlines.map((airline) => (
-                <div key={airline} className="flex items-center space-x-2">
+                <div
+                  key={airline}
+                  className="flex items-center space-x-2 rounded px-2"
+                >
                   <Checkbox
+                    className="rounded"
                     id={`airline-${airline}`}
                     checked={localFilters.airlines?.includes(airline) || false}
                     onCheckedChange={(checked) =>
@@ -162,10 +167,12 @@ export function FlightFilters({
                     htmlFor={`airline-${airline}`}
                     className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
                   >
-                    <div>{AIRLINE_NAMES[airline] || airline}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {airline}
+                    <div>
+                      {AIRLINE_NAMES[airline] || airline} ({airline})
                     </div>
+                    {/* <div className="text-xs text-muted-foreground mt-1">
+                      {airline}
+                    </div> */}
                   </label>
                 </div>
               ))}

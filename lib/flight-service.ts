@@ -26,6 +26,7 @@ export class FlightService {
       const data: AmadeusLocationSearchResponse = await response.json();
 
       return data.data.map((location) => ({
+        id: location.id,
         iataCode: location.iataCode,
         name: location.name,
         cityName: location.address.cityName,
@@ -176,30 +177,55 @@ export class FlightService {
     return `${hours}h ${minutes}m`;
   }
 
+  //   static generatePriceGraph(flights: FlightOffer[]): PricePoint[] {
+  //     const priceMap = new Map<string, { total: number; count: number }>();
+
+  //     flights.forEach((flight) => {
+  //       const price = parseFloat(flight.price.total);
+  //       const date =
+  //         flight.itineraries[0]?.segments[0]?.departure.at.split("T")[0];
+
+  //       if (date) {
+  //         const existing = priceMap.get(date) || { total: 0, count: 0 };
+  //         priceMap.set(date, {
+  //           total: existing.total + price,
+  //           count: existing.count + 1,
+  //         });
+  //       }
+  //     });
+
+  //     return Array.from(priceMap.entries())
+  //       .map(([date, { total, count }]) => ({
+  //         date,
+  //         price: Math.round(total / count),
+  //         count,
+  //       }))
+  //       .sort((a, b) => a.date.localeCompare(b.date));
+  //   }
   static generatePriceGraph(flights: FlightOffer[]): PricePoint[] {
-    const priceMap = new Map<string, { total: number; count: number }>();
+    return flights
+      .map((flight) => {
+        const firstSegment = flight.itineraries[0]?.segments[0];
+        const lastSegment =
+          flight.itineraries[0]?.segments[
+            flight.itineraries[0].segments.length - 1
+          ];
+        const stops = flight.itineraries[0]?.segments.length - 1 || 0;
 
-    flights.forEach((flight) => {
-      const price = parseFloat(flight.price.total);
-      const date =
-        flight.itineraries[0]?.segments[0]?.departure.at.split("T")[0];
-
-      if (date) {
-        const existing = priceMap.get(date) || { total: 0, count: 0 };
-        priceMap.set(date, {
-          total: existing.total + price,
-          count: existing.count + 1,
-        });
-      }
-    });
-
-    return Array.from(priceMap.entries())
-      .map(([date, { total, count }]) => ({
-        date,
-        price: Math.round(total / count),
-        count,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+        return {
+          id: flight.id,
+          price: parseFloat(flight.price.total),
+          departureTime: firstSegment?.departure.at || "",
+          arrivalTime: lastSegment?.arrival.at || "",
+          origin: firstSegment?.departure.iataCode || "",
+          destination: lastSegment?.arrival.iataCode || "",
+          airline: flight.validatingAirlineCodes[0] || "",
+          stops,
+          duration: flight.itineraries[0]?.duration || "",
+          seats: flight.numberOfBookableSeats,
+        };
+      })
+      .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
   }
 
   static extractUniqueAirlines(flights: FlightOffer[]): string[] {

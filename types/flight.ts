@@ -1,6 +1,7 @@
 // Amadeus API Types
 
 export interface Airport {
+  id: string;
   iataCode: string;
   name: string;
   cityName?: string;
@@ -109,9 +110,16 @@ export interface FlightFilters {
 }
 
 export interface PricePoint {
-  date: string;
+  id: string;
   price: number;
-  count: number;
+  departureTime: string;
+  arrivalTime: string;
+  origin: string;
+  destination: string;
+  airline: string;
+  stops: number;
+  duration: string;
+  seats: number;
 }
 
 export interface AirlineInfo {

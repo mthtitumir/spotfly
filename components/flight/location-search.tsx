@@ -63,12 +63,20 @@ export function LocationSearch({
     return () => clearTimeout(timer);
   }, [search, searchLocations]);
 
+  console.log("LocationSearch results:", { results });
+
+  const handleSelect = (airport: Airport) => {
+    onChange(airport);
+    setOpen(false);
+    setSearch("");
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
+          //   role="combobox"
           aria-expanded={open}
           className="w-full justify-between font-normal"
         >
@@ -77,8 +85,8 @@ export function LocationSearch({
             <div className="text-left">
               {value ? (
                 <div>
-                  <div className="font-semibold">{value.iataCode}</div>
-                  <div className="text-xs text-muted-foreground">
+                  {/* <div className="font-semibold">{value.iataCode}</div> */}
+                  <div className="font-semibold">
                     {value.cityName || value.name}
                   </div>
                 </div>
@@ -91,7 +99,7 @@ export function LocationSearch({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0" align="start">
-        <Command shouldFilter={false}>
+        {/* <Command shouldFilter={false}>
           <CommandInput
             placeholder={placeholder}
             value={search}
@@ -102,18 +110,19 @@ export function LocationSearch({
               {loading ? "Searching..." : "No locations found."}
             </CommandEmpty>
             <CommandGroup>
-              {results.map((airport, index) => (
+              {results?.map((airport, index) => (
                 <CommandItem
-                  key={index}
-                  value={airport.iataCode}
+                  key={airport.id}
+                  value={airport.id}
                   onSelect={() => {
+                    console.log("Selected airport:", airport);
                     onChange(airport);
                     setOpen(false);
                   }}
                 >
                   <div className="flex flex-col">
                     <div className="font-semibold">
-                      {airport.iataCode} - {airport.name}
+                      {airport.iataCode} - {airport.name} - {airport.id}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {airport.cityName}, {airport.countryCode}
@@ -123,7 +132,44 @@ export function LocationSearch({
               ))}
             </CommandGroup>
           </CommandList>
-        </Command>
+        </Command> */}
+        <div className="flex flex-col">
+          <div className="flex items-center border-b px-3">
+            <input
+              type="text"
+              placeholder={placeholder}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+            {loading || results.length === 0 ? (
+              <div className="py-6 text-center text-sm">
+                {loading ? "Searching..." : "No locations found."}
+              </div>
+            ) : (
+              <div className="p-1">
+                {results?.map((airport) => (
+                  <div
+                    key={airport.id}
+                    onClick={() => handleSelect(airport)}
+                    className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    <div className="flex flex-col">
+                      <div className="font-semibold">
+                        {airport.iataCode} - {airport.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {airport.cityName}, {airport.countryCode}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   );
