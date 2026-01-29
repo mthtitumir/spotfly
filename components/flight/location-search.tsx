@@ -26,6 +26,79 @@ interface LocationSearchProps {
   icon?: React.ReactNode;
 }
 
+const TRENDING_LOCATIONS: Airport[] = [
+  {
+    id: "NYC",
+    iataCode: "NYC",
+    name: "New York",
+    cityName: "New York",
+    countryCode: "US",
+  },
+  {
+    id: "LON",
+    iataCode: "LON",
+    name: "London",
+    cityName: "London",
+    countryCode: "GB",
+  },
+  {
+    id: "PAR",
+    iataCode: "PAR",
+    name: "Paris",
+    cityName: "Paris",
+    countryCode: "FR",
+  },
+  {
+    id: "TYO",
+    iataCode: "TYO",
+    name: "Tokyo",
+    cityName: "Tokyo",
+    countryCode: "JP",
+  },
+  {
+    id: "DXB",
+    iataCode: "DXB",
+    name: "Dubai",
+    cityName: "Dubai",
+    countryCode: "AE",
+  },
+  {
+    id: "SIN",
+    iataCode: "SIN",
+    name: "Singapore",
+    cityName: "Singapore",
+    countryCode: "SG",
+  },
+  {
+    id: "LAX",
+    iataCode: "LAX",
+    name: "Los Angeles",
+    cityName: "Los Angeles",
+    countryCode: "US",
+  },
+  {
+    id: "SFO",
+    iataCode: "SFO",
+    name: "San Francisco",
+    cityName: "San Francisco",
+    countryCode: "US",
+  },
+  {
+    id: "FRA",
+    iataCode: "FRA",
+    name: "Frankfurt",
+    cityName: "Frankfurt",
+    countryCode: "DE",
+  },
+  {
+    id: "AMS",
+    iataCode: "AMS",
+    name: "Amsterdam",
+    cityName: "Amsterdam",
+    countryCode: "NL",
+  },
+];
+
 export function LocationSearch({
   value,
   onChange,
@@ -39,7 +112,7 @@ export function LocationSearch({
 
   const searchLocations = useCallback(async (keyword: string) => {
     if (keyword.length < 2) {
-      setResults([]);
+      setResults(TRENDING_LOCATIONS);
       return;
     }
 
@@ -63,7 +136,11 @@ export function LocationSearch({
     return () => clearTimeout(timer);
   }, [search, searchLocations]);
 
-  console.log("LocationSearch results:", { results });
+  useEffect(() => {
+    if (open && search.length < 2) {
+      setResults(TRENDING_LOCATIONS);
+    }
+  }, [open, search.length]);
 
   const handleSelect = (airport: Airport) => {
     onChange(airport);
@@ -144,12 +221,19 @@ export function LocationSearch({
             />
           </div>
           <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
-            {loading || results.length === 0 ? (
+            {loading ? (
+              <div className="py-6 text-center text-sm">Searching...</div>
+            ) : results.length === 0 ? (
               <div className="py-6 text-center text-sm">
-                {loading ? "Searching..." : "No locations found."}
+                No locations found.
               </div>
             ) : (
               <div className="p-1">
+                {search.length < 2 && (
+                  <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                    Trending locations
+                  </div>
+                )}
                 {results?.map((airport) => (
                   <div
                     key={airport.id}

@@ -203,29 +203,28 @@ export class FlightService {
   //       .sort((a, b) => a.date.localeCompare(b.date));
   //   }
   static generatePriceGraph(flights: FlightOffer[]): PricePoint[] {
-    return flights
-      .map((flight) => {
-        const firstSegment = flight.itineraries[0]?.segments[0];
-        const lastSegment =
-          flight.itineraries[0]?.segments[
-            flight.itineraries[0].segments.length - 1
-          ];
-        const stops = flight.itineraries[0]?.segments.length - 1 || 0;
+    return flights.map((flight) => {
+      const firstSegment = flight.itineraries[0]?.segments[0];
+      const lastSegment =
+        flight.itineraries[0]?.segments[
+          flight.itineraries[0].segments.length - 1
+        ];
+      const stops = flight.itineraries[0]?.segments.length - 1 || 0;
 
-        return {
-          id: flight.id,
-          price: parseFloat(flight.price.total),
-          departureTime: firstSegment?.departure.at || "",
-          arrivalTime: lastSegment?.arrival.at || "",
-          origin: firstSegment?.departure.iataCode || "",
-          destination: lastSegment?.arrival.iataCode || "",
-          airline: flight.validatingAirlineCodes[0] || "",
-          stops,
-          duration: flight.itineraries[0]?.duration || "",
-          seats: flight.numberOfBookableSeats,
-        };
-      })
-      .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
+      return {
+        id: flight.id,
+        price: parseFloat(flight.price.total),
+        departureTime: firstSegment?.departure.at || "",
+        arrivalTime: lastSegment?.arrival.at || "",
+        origin: firstSegment?.departure.iataCode || "",
+        destination: lastSegment?.arrival.iataCode || "",
+        airline: flight.validatingAirlineCodes[0] || "",
+        stops,
+        duration: flight.itineraries[0]?.duration || "",
+        seats: flight.numberOfBookableSeats,
+      };
+    });
+    // .sort((a, b) => a.departureTime.localeCompare(b.departureTime));
   }
 
   static extractUniqueAirlines(flights: FlightOffer[]): string[] {
@@ -241,5 +240,106 @@ export class FlightService {
 
     const prices = flights.map((f) => parseFloat(f.price.total));
     return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))];
+  }
+
+  // Get cheapest flights
+  static getCheapestFlights(
+    flights: FlightOffer[],
+    count: number = 3,
+  ): FlightOffer[] {
+    if (flights.length === 0) return [];
+
+    const sorted = [...flights].sort(
+      (a, b) => parseFloat(a.price.total) - parseFloat(b.price.total),
+    );
+
+    return sorted.slice(0, Math.min(count, sorted.length));
+  }
+
+  // Get quickest flights (shortest duration)
+  static getQuickestFlights(
+    flights: FlightOffer[],
+    count: number = 3,
+  ): FlightOffer[] {
+    if (flights.length === 0) return [];
+
+    const sorted = [...flights].sort((a, b) => {
+      const durationA = this.parseDuration(a.itineraries[0]?.duration || "");
+      const durationB = this.parseDuration(b.itineraries[0]?.duration || "");
+      return durationA - durationB;
+    });
+
+    return sorted.slice(0, Math.min(count, sorted.length));
+  }
+
+  // Get fastest departure flights (earliest departure)
+  static getFastestDepartures(
+    flights: FlightOffer[],
+    count: number = 3,
+  ): FlightOffer[] {
+    if (flights.length === 0) return [];
+
+    const sorted = [...flights].sort((a, b) => {
+      const timeA = new Date(a.itineraries[0]?.segments[0]?.departure.at || "");
+      const timeB = new Date(b.itineraries[0]?.segments[0]?.departure.at || "");
+      return timeA.getTime() - timeB.getTime();
+    });
+
+    return sorted.slice(0, Math.min(count, sorted.length));
+  }
+
+  // Get best value flights (combination of price and duration)
+  static getBestValueFlights(
+    flights: FlightOffer[],
+    count: number = 3,
+  ): FlightOffer[] {
+    if (flights.length === 0) return [];
+
+    const priceRange = this.getPriceRange(flights);
+    const maxDuration = Math.max(
+      ...flights.map((f) =>
+        this.parseDuration(f.itineraries[0]?.duration || ""),
+      ),
+    );
+
+    const scored = flights.map((flight) => {
+      const price = parseFloat(flight.price.total);
+      const duration = this.parseDuration(
+        flight.itineraries[0]?.duration || "",
+      );
+
+      // Normalize price and duration to 0-1 scale
+      const priceScore =
+        (price - priceRange[0]) / (priceRange[1] - priceRange[0]) || 0;
+      const durationScore = duration / maxDuration || 0;
+
+      // Weighted score: 60% price, 40% duration
+      const score = priceScore * 0.6 + durationScore * 0.4;
+
+      return { flight, score };
+    });
+
+    const sorted = scored.sort((a, b) => a.score - b.score);
+    return sorted.slice(0, Math.min(count, sorted.length)).map((s) => s.flight);
+  }
+
+  // Get nonstop flights
+  static getNonstopFlights(
+    flights: FlightOffer[],
+    count: number = 3,
+  ): FlightOffer[] {
+    if (flights.length === 0) return [];
+
+    const nonstops = flights.filter((flight) => {
+      const segments = flight.itineraries[0]?.segments || [];
+      return segments.length === 1;
+    });
+
+    // Sort by price
+    const sorted = nonstops.sort(
+      (a, b) => parseFloat(a.price.total) - parseFloat(b.price.total),
+    );
+
+    return sorted.slice(0, Math.min(count, sorted.length));
   }
 }

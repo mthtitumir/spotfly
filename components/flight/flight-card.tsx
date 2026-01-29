@@ -3,16 +3,17 @@
 import { FlightOffer, AIRLINE_NAMES } from "@/types/flight";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { FlightService } from "@/lib/flight-service";
-import { FaPlane, FaClock, FaSuitcase } from "react-icons/fa";
+import { FaPlane, FaClock, FaSuitcase, FaArrowRight } from "react-icons/fa";
 import { format } from "date-fns";
-import { Clock, Plane } from "lucide-react";
 
 interface FlightCardProps {
   flight: FlightOffer;
+  onClick?: () => void;
 }
 
-export function FlightCard({ flight }: FlightCardProps) {
+export function FlightCard({ flight, onClick }: FlightCardProps) {
   const outbound = flight.itineraries[0];
   const firstSegment = outbound.segments[0];
   const lastSegment = outbound.segments[outbound.segments.length - 1];
@@ -30,96 +31,10 @@ export function FlightCard({ flight }: FlightCardProps) {
   const airlineName = AIRLINE_NAMES[airline] || airline;
 
   return (
-    // <Card className="p-6 hover:shadow-lg transition-shadow rounded-md">
-    //   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-    //     {/* Flight Info */}
-    //     <div className="flex-1 space-y-4">
-    //       {/* Airline */}
-    //       <div className="flex items-center gap-2">
-    //         <Badge variant="outline">{airline}</Badge>
-    //         <span className="text-sm text-muted-foreground">{airlineName}</span>
-    //       </div>
-
-    //       {/* Route and Times */}
-    //       <div className="flex items-center gap-4">
-    //         <div className="flex-1">
-    //           <div className="text-2xl font-bold">
-    //             {format(departureTime, "HH:mm")}
-    //           </div>
-    //           <div className="text-sm text-muted-foreground">
-    //             {firstSegment.departure.iataCode}
-    //           </div>
-    //         </div>
-
-    //         <div className="flex-1 flex flex-col items-center px-4">
-    //           <div className="text-sm text-muted-foreground mb-1.5">
-    //             {duration}
-    //           </div>
-    //           <div className="w-full relative">
-    //             <div className="border-t-1 border-border"></div>
-    //             <FaPlane className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-primary rotate-90" />
-    //           </div>
-    //           <div className="text-xs text-muted-foreground mt-1.5">
-    //             {stops === 0
-    //               ? "Nonstop"
-    //               : `${stops} ${stops === 1 ? "stop" : "stops"}`}
-    //           </div>
-    //         </div>
-
-    //         <div className="flex-1 text-right">
-    //           <div className="text-2xl font-bold">
-    //             {format(arrivalTime, "HH:mm")}
-    //           </div>
-    //           <div className="text-sm text-muted-foreground">
-    //             {lastSegment.arrival.iataCode}
-    //           </div>
-    //         </div>
-    //       </div>
-
-    //       {/* Stops Details */}
-    //       {stops > 0 && (
-    //         <div className="text-xs text-muted-foreground">
-    //           via{" "}
-    //           {outbound.segments
-    //             .slice(0, -1)
-    //             .map((seg) => seg.arrival.iataCode)
-    //             .join(", ")}
-    //         </div>
-    //       )}
-    //     </div>
-
-    //     {/* Price and Action */}
-    //     <div className="lg:border-l lg:pl-6 flex lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-2">
-    //       <div className="text-right">
-    //         <div className="text-3xl font-bold">
-    //           {currency} {price.toLocaleString()}
-    //         </div>
-    //         <div className="text-sm text-muted-foreground">per person</div>
-    //       </div>
-    //     </div>
-    //   </div>
-
-    //   {/* Additional Info */}
-    //   <div className="mt-4 pt-4 border-t flex flex-wrap gap-4 text-sm text-muted-foreground">
-    //     <div className="flex items-center gap-2">
-    //       <Clock className="h-4 w-4" />
-    //       <span>Flight: {firstSegment.number}</span>
-    //     </div>
-    //     <div className="flex items-center gap-2">
-    //       <FaSuitcase className="h-4 w-4" />
-    //       <span>
-    //         {flight.travelerPricings[0]?.fareDetailsBySegment[0]?.cabin ||
-    //           "Economy"}
-    //       </span>
-    //     </div>
-    //     {flight.numberOfBookableSeats <= 5 && (
-    //       <Badge variant="destructive">
-    //         Only {flight.numberOfBookableSeats} seats left
-    //       </Badge>
-    //     )}
-    //   </div>
-    // </Card>
-    <div className="group relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-br from-card via-card to-card/95 p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-accent/40">
+    <div
+      className="group relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-br from-card via-card to-card/95 p-6 shadow-lg transition-all duration-300 hover:shadow-xl hover:border-accent/40 hover:scale-[1.01] cursor-pointer"
+      onClick={onClick}
+    >
       {/* Decorative background element */}
       <div className="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-gradient-to-br from-primary/10 to-accent/10 blur-3xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
@@ -167,7 +82,7 @@ export function FlightCard({ flight }: FlightCardProps) {
               <div className="relative w-full my-1.5">
                 <div className="h-1 bg-gradient-to-r from-primary/30 via-primary to-primary/30 rounded-full" />
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card p-2 shadow-md">
-                  <Plane className="h-4 w-4 text-primary" />
+                  <FaPlane className="h-4 w-4 text-primary rotate-90" />
                 </div>
               </div>
               <span className="text-xs font-semibold text-foreground">
@@ -230,12 +145,17 @@ export function FlightCard({ flight }: FlightCardProps) {
               </div>
               <p className="text-xs text-muted-foreground">per person</p>
             </div>
-            {/* <Button 
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-lg"
+            <Button
+              className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all hover:shadow-lg"
               size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.();
+              }}
             >
-              Select Flight
-            </Button> */}
+              View Details
+              <FaArrowRight className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       </div>

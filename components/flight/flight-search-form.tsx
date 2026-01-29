@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LocationSearch } from "./location-search";
 import { Airport, FlightSearchParams } from "@/types/flight";
 import { Button } from "@/components/ui/button";
@@ -31,16 +32,59 @@ import { ArrowRight, ArrowRightLeft, Repeat } from "lucide-react";
 interface FlightSearchFormProps {
   onSearch: (params: FlightSearchParams) => void;
   loading?: boolean;
+  initialParams?: FlightSearchParams;
 }
 
-export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
+export function FlightSearchForm({
+  onSearch,
+  loading,
+  initialParams,
+}: FlightSearchFormProps) {
+  const today = new Date();
+  const defaultDeparture = new Date(today);
+  defaultDeparture.setDate(today.getDate() + 1);
+  const defaultReturn = new Date(today);
+  defaultReturn.setDate(today.getDate() + 4);
+
   const [origin, setOrigin] = useState<Airport | null>(null);
   const [destination, setDestination] = useState<Airport | null>(null);
-  const [departureDate, setDepartureDate] = useState<Date>();
-  const [returnDate, setReturnDate] = useState<Date>();
+  const [departureDate, setDepartureDate] = useState<Date>(defaultDeparture);
+  const [returnDate, setReturnDate] = useState<Date | undefined>(defaultReturn);
   const [tripType, setTripType] = useState<"one-way" | "round-trip">("one-way");
   const [adults, setAdults] = useState("1");
+  const [children, setChildren] = useState("0");
   const [travelClass, setTravelClass] = useState<string>("ECONOMY");
+
+  const toAirportFromCode = (iataCode: string): Airport => ({
+    id: iataCode,
+    iataCode,
+    name: iataCode,
+    cityName: iataCode,
+    countryCode: "",
+  });
+
+  useEffect(() => {
+    if (!initialParams) return;
+
+    setOrigin(
+      initialParams.originLocationCode
+        ? toAirportFromCode(initialParams.originLocationCode)
+        : null,
+    );
+    setDestination(
+      initialParams.destinationLocationCode
+        ? toAirportFromCode(initialParams.destinationLocationCode)
+        : null,
+    );
+    setDepartureDate(new Date(initialParams.departureDate));
+    setReturnDate(
+      initialParams.returnDate ? new Date(initialParams.returnDate) : undefined,
+    );
+    setTripType(initialParams.returnDate ? "round-trip" : "one-way");
+    setAdults(String(initialParams.adults ?? 1));
+    setChildren(String(initialParams.children ?? 0));
+    setTravelClass(initialParams.travelClass ?? "ECONOMY");
+  }, [initialParams]);
 
   const handleSwap = () => {
     const temp = origin;
@@ -58,6 +102,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
       destinationLocationCode: destination.iataCode,
       departureDate: format(departureDate, "yyyy-MM-dd"),
       adults: parseInt(adults),
+      children: parseInt(children) > 0 ? parseInt(children) : undefined,
       travelClass: travelClass as
         | "ECONOMY"
         | "PREMIUM_ECONOMY"
@@ -76,7 +121,7 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
   const canSearch = origin && destination && departureDate;
 
   return (
-    <div className="w-full bg-white dark:bg-card rounded-2xl shadow-lg p-6 border border-border">
+    <div className="w-full rounded-xl p-6 border border-white/20 bg-white/70 dark:bg-card/70 backdrop-blur-md shadow-lg">
       <div className="flex flex-col gap-6">
         {/* Trip Type Selection */}
         <div className="flex gap-4">
@@ -155,9 +200,12 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
                 <Calendar
                   mode="single"
                   selected={departureDate}
-                  onSelect={setDepartureDate}
+                  onSelect={(date) => {
+                    if (date) setDepartureDate(date);
+                  }}
                   disabled={(date) => date < new Date()}
-                  initialFocus
+                  autoFocus
+                  required={false}
                 />
               </PopoverContent>
             </Popover>
@@ -183,12 +231,15 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
                   <Calendar
                     mode="single"
                     selected={returnDate}
-                    onSelect={setReturnDate}
+                    onSelect={(date) => {
+                      if (date) setReturnDate(date);
+                    }}
                     disabled={(date) =>
                       date < new Date() ||
                       !!(departureDate && date < departureDate)
                     }
                     autoFocus
+                    required={false}
                   />
                 </PopoverContent>
               </Popover>
@@ -197,9 +248,9 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
         </div>
 
         {/* Passengers and Class */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Passengers</label>
+            <label className="text-sm font-medium">Adults</label>
             <Select value={adults} onValueChange={setAdults}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -212,6 +263,34 @@ export function FlightSearchForm({ onSearch, loading }: FlightSearchFormProps) {
                 ))}
               </SelectContent>
             </Select>
+            <p className="text-xs text-muted-foreground">Age 12+</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Children</label>
+            <Select value={children} onValueChange={setChildren}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <SelectItem key={num} value={num.toString()}>
+                    {num} {num === 1 ? "Child" : "Children"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">Age 2-11</p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Total</label>
+            <div className="flex items-center justify-center h-10 rounded-md border border-input bg-background px-3 py-2">
+              <p className="text-sm font-medium">
+                {parseInt(adults) + parseInt(children)}
+              </p>
+            </div>
+            <p className="text-xs text-muted-foreground">Passengers</p>
           </div>
 
           <div className="space-y-2">
