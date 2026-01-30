@@ -24,10 +24,9 @@ import {
   FaPlaneDeparture,
   FaCalendar,
   FaSearch,
-  FaExchangeAlt,
 } from "react-icons/fa";
 import { cn } from "@/lib/utils";
-import { ArrowRight, ArrowRightLeft, Repeat } from "lucide-react";
+import { ArrowRight, ArrowRightLeft } from "lucide-react";
 
 interface FlightSearchFormProps {
   onSearch: (params: FlightSearchParams) => void;
@@ -121,10 +120,10 @@ export function FlightSearchForm({
   const canSearch = origin && destination && departureDate;
 
   return (
-    <div className="w-full rounded-xl p-6 border border-white/20 bg-white/70 dark:bg-card/70 backdrop-blur-md shadow-lg">
+    <div className="w-full rounded-xl p-6 border border-white/20 bg-white/60 dark:bg-card/70 backdrop-blur-md shadow-lg">
       <div className="flex flex-col gap-6">
         {/* Trip Type Selection */}
-        <div className="flex gap-4">
+        <div className="flex gap-2 md:gap-4">
           <Button
             variant={tripType === "one-way" ? "default" : "outline"}
             onClick={() => setTripType("one-way")}

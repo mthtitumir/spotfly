@@ -15,7 +15,7 @@ import {
 } from "@/types/flight";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plane } from "lucide-react";
+import { Plane, Menu, MessageCircle, Filter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -29,6 +29,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/shared/header";
 
 const RECENT_SEARCHES_KEY = "spotfly.recentSearches";
 const MAX_RECENT_SEARCHES = 5;
@@ -228,51 +230,36 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Header */}
-      <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-md border-b border-border/60 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-md">
-              <Plane className="h-6 w-6" />
-            </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                SpotFly
-              </h1>
-              <p className="text-xs font-medium text-muted-foreground">
-                Smart flight search & real-time deals
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero */}
-      <section className="relative">
+      <section className="relative min-h-[75vh] sm:min-h-[80vh] lg:min-h-[85vh] bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <video
-          className="h-[50vh] w-full object-cover"
-          src="/takeoff.mp4"
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/plane.mp4"
           autoPlay
           muted
           loop
           playsInline
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
-        <div className="absolute inset-0">
-          <div className="container mx-auto h-full px-4">
-            <div className="flex h-full items-end">
-              <div className="h-1/2 w-full">
-                <FlightSearchForm
-                  onSearch={handleSearch}
-                  loading={isLoading}
-                  initialParams={searchParams ?? undefined}
-                />
-              </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/40" />
+
+        {/* Centered Form Container */}
+        <div className="relative z-10 container mx-auto h-full px-4">
+          <div className="flex min-h-[75vh] sm:min-h-[80vh] lg:min-h-[85vh] items-center justify-center py-12">
+            <div className="w-full max-w-5xl">
+              <FlightSearchForm
+                onSearch={handleSearch}
+                loading={isLoading}
+                initialParams={searchParams ?? undefined}
+              />
             </div>
           </div>
         </div>
       </section>
+
       {/* Main */}
-      <main className="container mx-auto px-4 py-8 mt-[550px] md:mt-[200px]">
+      <main className="container mx-auto px-4 py-8">
         {recentSearches.length > 0 && (
           <div className="mb-6 rounded-xl border border-border/60 bg-white/70 dark:bg-gray-900/60 backdrop-blur-md p-4">
             <div className="flex items-center justify-between">
@@ -388,13 +375,14 @@ export default function Home() {
                           {filteredFlights.length !== 1 ? "s" : ""} found
                         </p>
                         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start">
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-2 rounded-md border border-border/60 bg-background/80 px-3 py-2 text-xs font-medium text-foreground shadow-sm transition hover:bg-accent/60 sm:hidden"
+                          <Button
+                            variant="outline"
+                            className="inline-flex items-center gap-2 bg-background/80 px-3 py-2 text-xs font-medium text-foreground transition hover:bg-accent/60 sm:hidden"
                             onClick={() => setFiltersOpen(true)}
                           >
+                            <Filter size={13} />
                             Filters
-                          </button>
+                          </Button>
                           <div className="flex items-center gap-2">
                             <label className="text-sm font-medium text-muted-foreground">
                               Sort by:
@@ -454,13 +442,13 @@ export default function Home() {
       </main>
 
       {/* Flight Detail Modal */}
-      {/* {selectedFlight && ( */}
-      <FlightDetailModal
-        flight={selectedFlight}
-        open={modalOpen}
-        onOpenChange={handleModalClose}
-      />
-      {/* )} */}
+      {selectedFlight && (
+        <FlightDetailModal
+          flight={selectedFlight}
+          open={modalOpen}
+          onOpenChange={handleModalClose}
+        />
+      )}
     </div>
   );
 }
