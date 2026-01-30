@@ -8,7 +8,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white">
               <Plane className="h-5 w-5" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
@@ -18,7 +18,7 @@ const Header = () => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-3">
-            <Button className="rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+            <Button className="rounded-lg bg-primary hover:bg-primary/90 text-white">
               Sign In
             </Button>
           </div>

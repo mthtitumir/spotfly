@@ -74,18 +74,6 @@ export function PriceGraph({ data, currency = "USD" }: PriceGraphProps) {
         <div className="overflow-x-auto">
           <ResponsiveContainer width="100%" height={450} minWidth={800}>
             <ScatterChart margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <defs>
-                <linearGradient
-                  id="priceGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#2563eb" />
-                  <stop offset="100%" stopColor="#9333ea" />
-                </linearGradient>
-              </defs>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis
                 dataKey="index"
@@ -188,7 +176,7 @@ export function PriceGraph({ data, currency = "USD" }: PriceGraphProps) {
               <Scatter
                 data={formattedData}
                 dataKey="price"
-                fill="url(#priceGradient)"
+                fill="oklch(0.208 0.042 265.755)"
                 shape="star"
               />
             </ScatterChart>

@@ -153,9 +153,8 @@ export function LocationSearch({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          //   role="combobox"
           aria-expanded={open}
-          className="w-full justify-between font-normal"
+          className="w-full justify-between font-normal bg-transparent hover:bg-transparent"
         >
           <div className="flex items-center gap-2">
             {icon}

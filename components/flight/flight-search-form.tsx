@@ -27,6 +27,7 @@ import {
 } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowRightLeft } from "lucide-react";
+import { Label } from "../ui/label";
 
 interface FlightSearchFormProps {
   onSearch: (params: FlightSearchParams) => void;
@@ -120,7 +121,7 @@ export function FlightSearchForm({
   const canSearch = origin && destination && departureDate;
 
   return (
-    <div className="w-full rounded-xl p-6 border border-white/20 bg-white/60 dark:bg-card/70 backdrop-blur-md shadow-lg">
+    <div className="w-full rounded-xl p-6 border border-white/20 bg-white/70 dark:bg-card/70 backdrop-blur-md shadow-lg">
       <div className="flex flex-col gap-6">
         {/* Trip Type Selection */}
         <div className="flex gap-2 md:gap-4">
@@ -143,7 +144,7 @@ export function FlightSearchForm({
         {/* Origin and Destination */}
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center">
           <div className="space-y-2">
-            <label className="text-sm font-medium">From</label>
+            <Label className="text-sm font-medium">From</Label>
             <LocationSearch
               value={origin}
               onChange={setOrigin}
@@ -166,7 +167,7 @@ export function FlightSearchForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">To</label>
+            <Label className="text-sm font-medium">To</Label>
             <LocationSearch
               value={destination}
               onChange={setDestination}
@@ -181,13 +182,13 @@ export function FlightSearchForm({
         {/* Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Departure Date</label>
+            <Label className="text-sm font-medium">Departure Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start text-left font-normal bg-transparent hover:bg-transparent",
                     !departureDate && "text-muted-foreground",
                   )}
                 >
@@ -212,13 +213,13 @@ export function FlightSearchForm({
 
           {tripType === "round-trip" && (
             <div className="space-y-2">
-              <label className="text-sm font-medium">Return Date</label>
+              <Label className="text-sm font-medium">Return Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal bg-transparent hover:bg-transparent",
                       !returnDate && "text-muted-foreground",
                     )}
                   >
@@ -249,7 +250,7 @@ export function FlightSearchForm({
         {/* Passengers and Class */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Adults</label>
+            <Label className="text-sm font-medium">Adults</Label>
             <Select value={adults} onValueChange={setAdults}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -266,7 +267,7 @@ export function FlightSearchForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Children</label>
+            <Label className="text-sm font-medium">Children</Label>
             <Select value={children} onValueChange={setChildren}>
               <SelectTrigger className="w-full">
                 <SelectValue />
@@ -283,8 +284,8 @@ export function FlightSearchForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Total</label>
-            <div className="flex items-center justify-center h-10 rounded-md border border-input bg-background px-3 py-2">
+            <Label className="text-sm font-medium">Total</Label>
+            <div className="flex items-center justify-center h-10 rounded-md border border-input px-3 py-2">
               <p className="text-sm font-medium">
                 {parseInt(adults) + parseInt(children)}
               </p>
@@ -293,7 +294,7 @@ export function FlightSearchForm({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Class</label>
+            <Label className="text-sm font-medium">Class</Label>
             <Select value={travelClass} onValueChange={setTravelClass}>
               <SelectTrigger className="w-full">
                 <SelectValue />
