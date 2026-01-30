@@ -23,6 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const RECENT_SEARCHES_KEY = "spotfly.recentSearches";
 const MAX_RECENT_SEARCHES = 5;
@@ -43,6 +49,7 @@ export default function Home() {
     null,
   );
   const [modalOpen, setModalOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<string>("relevant");
   const [visibleCount, setVisibleCount] = useState(100);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
@@ -173,7 +180,7 @@ export default function Home() {
   const handleSearch = (params: FlightSearchParams) => {
     setSearchParams(params);
     setFilters({}); // Reset filters on new search
-    setVisibleCount(50);
+    setVisibleCount(100);
     saveRecentSearch(params);
   };
 
@@ -181,7 +188,7 @@ export default function Home() {
     setSearchParams(params);
     setFilters({});
     setSortBy("relevant");
-    setVisibleCount(50);
+    setVisibleCount(100);
   };
 
   const handleClearRecent = () => {
@@ -311,95 +318,121 @@ export default function Home() {
               />
             )}
 
-            {/* Results Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
-              {/* Filters Sidebar */}
-              {allFlights.length > 0 && (
-                <div className="lg:order-1">
-                  <FlightFilters
-                    airlines={airlines}
-                    priceRange={priceRange}
-                    filters={filters}
-                    onChange={handleFilterChange}
-                    onReset={handleResetFilters}
-                  />
-                </div>
-              )}
+            <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <DialogContent className="max-w-[95vw] sm:max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Filters</DialogTitle>
+                </DialogHeader>
+                <FlightFilters
+                  airlines={airlines}
+                  priceRange={priceRange}
+                  filters={filters}
+                  onChange={handleFilterChange}
+                  onReset={handleResetFilters}
+                />
+              </DialogContent>
+            </Dialog>
 
-              {/* Flight List */}
-              <div className="lg:order-2">
-                {isLoading && (
-                  <div className="flex items-center justify-center py-20">
-                    <div className="text-center space-y-4">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                      <p className="text-muted-foreground">
-                        Searching for flights...
-                      </p>
-                    </div>
+            {/* Results Grid */}
+            {isLoading ? (
+              <div className="flex min-h-[50vh] w-full items-center justify-center py-20">
+                <div className="text-center space-y-4">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-muted-foreground">
+                    Searching for flights...
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
+                {/* Filters Sidebar */}
+                {allFlights.length > 0 && (
+                  <div className="hidden lg:block lg:order-1">
+                    <FlightFilters
+                      airlines={airlines}
+                      priceRange={priceRange}
+                      filters={filters}
+                      onChange={handleFilterChange}
+                      onReset={handleResetFilters}
+                    />
                   </div>
                 )}
 
-                {!isLoading &&
-                  filteredFlights.length === 0 &&
-                  allFlights.length > 0 && (
+                {/* Flight List */}
+                <div className="lg:order-2">
+                  {!isLoading &&
+                    filteredFlights.length === 0 &&
+                    allFlights.length > 0 && (
+                      <div className="text-center py-20">
+                        <p className="text-lg text-muted-foreground">
+                          No flights match your filters. Try adjusting your
+                          criteria.
+                        </p>
+                      </div>
+                    )}
+
+                  {!isLoading && allFlights.length === 0 && searchParams && (
                     <div className="text-center py-20">
                       <p className="text-lg text-muted-foreground">
-                        No flights match your filters. Try adjusting your
-                        criteria.
+                        No flights found for this route. Try different dates or
+                        locations.
                       </p>
                     </div>
                   )}
 
-                {!isLoading && allFlights.length === 0 && searchParams && (
-                  <div className="text-center py-20">
-                    <p className="text-lg text-muted-foreground">
-                      No flights found for this route. Try different dates or
-                      locations.
-                    </p>
-                  </div>
-                )}
-
-                {filteredFlights.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <p className="text-sm text-muted-foreground">
-                        {filteredFlights.length} flight
-                        {filteredFlights.length !== 1 ? "s" : ""} found
-                      </p>
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-muted-foreground">
-                          Sort by:
-                        </label>
-                        <Select value={sortBy} onValueChange={setSortBy}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="relevant">Relevant</SelectItem>
-                            <SelectItem value="price-low">
-                              Price: Low to High
-                            </SelectItem>
-                            <SelectItem value="price-high">
-                              Price: High to Low
-                            </SelectItem>
-                            <SelectItem value="duration">
-                              Shortest Duration
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                  {filteredFlights.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <p className="text-sm text-muted-foreground">
+                          {filteredFlights.length} flight
+                          {filteredFlights.length !== 1 ? "s" : ""} found
+                        </p>
+                        <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start">
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-2 rounded-md border border-border/60 bg-background/80 px-3 py-2 text-xs font-medium text-foreground shadow-sm transition hover:bg-accent/60 sm:hidden"
+                            onClick={() => setFiltersOpen(true)}
+                          >
+                            Filters
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-muted-foreground">
+                              Sort by:
+                            </label>
+                            <Select value={sortBy} onValueChange={setSortBy}>
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="relevant">
+                                  Relevant
+                                </SelectItem>
+                                <SelectItem value="price-low">
+                                  Price: Low to High
+                                </SelectItem>
+                                <SelectItem value="price-high">
+                                  Price: High to Low
+                                </SelectItem>
+                                <SelectItem value="duration">
+                                  Shortest Duration
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
                       </div>
+                      {filteredFlights.map((flight) => (
+                        <FlightCard
+                          key={flight.id}
+                          flight={flight}
+                          onClick={() => handleFlightSelect(flight)}
+                        />
+                      ))}
                     </div>
-                    {filteredFlights.map((flight) => (
-                      <FlightCard
-                        key={flight.id}
-                        flight={flight}
-                        onClick={() => handleFlightSelect(flight)}
-                      />
-                    ))}
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
